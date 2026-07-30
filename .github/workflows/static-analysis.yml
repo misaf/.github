@@ -12,6 +12,15 @@ jobs:
 
     name: Static Analysis
 
+    # API Platform introspects Eloquent resource schemas while building route
+    # metadata during `package:discover` (the composer post-autoload-dump hook),
+    # so booting without a reachable database fails. An empty in-memory SQLite
+    # DB satisfies the introspection without provisioning a service, and is a
+    # harmless default for packages that never touch the database.
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -22,7 +31,7 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: 8.4
-          extensions: swoole, relay
+          extensions: swoole, relay, pdo_sqlite, sqlite3
           tools: composer:v2
           coverage: none
 
